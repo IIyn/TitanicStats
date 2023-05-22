@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-import hello from "./routes/hello";
+import hello from "./routes/hello.js";
 
 const app = express();
 
