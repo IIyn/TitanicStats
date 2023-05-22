@@ -19,5 +19,5 @@ cd ./server && npm start
 - Run the client
 
 ```
-cd ./client && npm start
+cd ./client && npm run dev
 ```
