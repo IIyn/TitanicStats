@@ -2,11 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon src/server.js"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +16,8 @@
     "express": "^4.18.2",
     "mongoose": "^7.2.0",
     "nodemon": "^2.0.22"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
   }
 }

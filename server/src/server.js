@@ -1,10 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
-import hello from "./routes/hello.js";
+import hello from "./routes/hello";
 
 const app = express();
 
-dotenv.config();
+dotenv.config("../.env");
 const { APP_URL, APP_PORT } = process.env;
 
 app.get("/", (req, res) => {
