@@ -5,7 +5,7 @@ export default async function handler(request: any, response: any) {
   const collection = database.collection(
     process.env.NEXT_ATLAS_COLLECTION_PASSENGER
   );
-  const { age, survived, pclass, sex } = request.body;
+  const { age, pclass, sex } = request.body;
 
   const results = await collection
     .find({
