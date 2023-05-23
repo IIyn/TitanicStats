@@ -54,7 +54,6 @@ export default function Search() {
     for (let i = 0; i < 5; i++) {
       ageArray.push(Math.floor(filter.age.min + ageStep * i));
     }
-    console.log(ageArray);
     return ageArray;
   };
 
@@ -139,6 +138,9 @@ export default function Search() {
       setUpdate(false);
     })();
   }, [update]);
+
+  useEffect(() => {
+  }, [showSideBar]);
 
   return (
     <main className={styles.container}>

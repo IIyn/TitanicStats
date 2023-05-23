@@ -1,31 +1,35 @@
 import { useState, useEffect, FormEvent } from "react";
 import Head from "next/head";
-import Image from "next/image";
 import router from "next/router";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
-import { redirect } from "next/dist/server/api-utils";
 import User from "@/types/User";
 
 export default function Login() {
-  const [userList, setUserList] = useState<User[]>();
-
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [connectedUser, setConnectedUser] = useState<User | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    if (response.ok) {
-      const user = await response.json();
-      setConnectedUser(user[0]);
+    setErrorMessage("");
+    if (email === "" || password === "") {
+      setErrorMessage("Veuillez remplir tous les champs");
+    } else if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {
+      setErrorMessage("Veuillez entrer une adresse email valide");
+    } else {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (response.ok) {
+        const user = await response.json();
+        setConnectedUser(user[0]);
+      }
     }
   };
 
@@ -73,6 +77,9 @@ export default function Login() {
               setPassword(event.target.value);
             }}
           />
+          {errorMessage && (
+            <p className={styles.errorMessage}>{errorMessage}</p>
+          )}
           <button type="submit">Se connecter</button>
         </form>
         <p
