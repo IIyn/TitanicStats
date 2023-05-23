@@ -17,9 +17,23 @@ export default function Search() {
     survived: true,
   });
 
+  const [results, setResults] = useState<Passenger[]>();
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log(filter);
+    const response = await fetch("/api/stats", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(filter),
+    });
+
+    if (response.ok) {
+      const passengers = await response.json();
+      setResults(passengers);
+    }
   };
 
   useEffect(() => {
@@ -116,6 +130,32 @@ export default function Search() {
         </select>
         <button type="submit">Rechercher</button>
       </form>
+      {results ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Sexe</th>
+              <th>Age</th>
+              <th>Classe</th>
+              <th>Survécu</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((passenger) => (
+              <tr key={passenger._id}>
+                <td>{passenger.Name}</td>
+                <td>{passenger.Sex}</td>
+                <td>{passenger.Age}</td>
+                <td>{passenger.Pclass}</td>
+                <td>{passenger.Survived}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Aucun résultat</p>
+      )}
     </main>
   );
 }
