@@ -208,7 +208,6 @@ export default function Search() {
         </button>
       </header>
       <form className={styles.form} action="">
-        <label htmlFor="search">Recherche</label>
         <select
           name="sex"
           id="sex-select"
