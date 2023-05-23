@@ -14,7 +14,7 @@ export default async function handler(request: any, response: any) {
       email: 1,
       password: 1,
     })
-    .limit(10)
+    //.limit(10)
     .toArray();
 
   response.status(200).json(results);

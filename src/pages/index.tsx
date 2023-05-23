@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent, use } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import router from "next/router";
@@ -10,23 +10,31 @@ import User from "@/types/User";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  const [userList, setUserList] = useState<User[]>();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [name, setName] = useState<string>("")
   const [connectedUser, setConnectedUser] = useState<User | null>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const getUser =
+    await fetch("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
     });
-    if (response.ok) {
-      const user = (await response.json()) as User[];
+    if (getUser.ok) {
+      const user = (await getUser.json()) as User[];
       setConnectedUser(user[0]);
     }
   };
@@ -37,15 +45,6 @@ export default function Home() {
       router.push("/search");
     }
   }, [connectedUser]);
-
-  useEffect(() => {
-    (async () => {
-      const results = (await fetch("/api/userList").then((response) =>
-        response.json()
-      )) as User[];
-      setUserList(results);
-    })();
-  }, []);
 
   return (
     <>
@@ -59,8 +58,16 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <h1 className={styles.title}>Login</h1>
+        <h1 className={styles.title}>S'inscrire</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
+        <label htmlFor="email">Nom</label>
+          <input
+            type="text"
+            id="name"
+            onChange={(event) => {
+              setName(event.target.value);
+            }}
+          />
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -79,19 +86,10 @@ export default function Home() {
           />
           <button type="submit">Se connecter</button>
         </form>
-        {userList ? (
-          <ul>
-            {userList.map((user) => (
-              <li key={user._id}>
-                <p>
-                  {user.name} | {user.email} | {user.password}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Aucun utilisateur</p>
-        )}
+
+        <p onClick={() => {
+          router.push("/login");
+        }}>Vous avez déjà un compte ?</p>
       </main>
     </>
   );
