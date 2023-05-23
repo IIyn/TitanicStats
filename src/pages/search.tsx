@@ -2,6 +2,7 @@ import router from "next/router";
 import { FormEvent, useEffect, useState, useRef, MouseEvent } from "react";
 import type { InteractionItem } from 'chart.js';
 import styles from "@/styles/Search.module.css";
+import Image from "next/image";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +15,7 @@ import {
   Legend,
 } from "chart.js";
 import { Doughnut, Line } from "react-chartjs-2";
+import SideBar from "@/components/SideBar";
 
 ChartJS.register(
   CategoryScale,
@@ -36,10 +38,12 @@ export default function Search() {
     survived: boolean;
   }>({
     sex: "male",
-    age: { min: 45, max: 100 },
+    age: { min: 0, max: 18 },
     pclass: 1,
     survived: true,
   });
+
+  const [showSideBar, setShowSideBar] = useState<boolean>(false);
 
   const [results, setResults] = useState<Passenger[]>();
 
@@ -49,24 +53,60 @@ export default function Search() {
     const ageStep = ageRange / 5;
     const ageArray = [];
     for (let i = 0; i < 5; i++) {
-      ageArray.push(filter.age.min + ageStep * i);
+      ageArray.push(Math.floor(filter.age.min + ageStep * i));
     }
     return ageArray;
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const response = await fetch("/api/stats", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(filter),
-    });
+  const prettifyFilter = (filterType: string): string => {
+    switch (filterType) {
+      case "sex":
+        return filter.sex === "male" ? "d'hommes" : "de femmes";
+      case "age":
+        if (filter.age.min === 45) {
+          return " 45 ans et plus";
+        } else if (filter.age.min === 0) {
+          return " moins de 18 ans";
+        } else {
+          return (
+            "plus de " +
+            filter.age.min +
+            " ans et moins de " +
+            filter.age.max +
+            " ans"
+          );
+        }
+      case "pclass":
+        return filter.pclass === 1
+          ? "1ère classe"
+          : filter.pclass + "ème classe";
+      default:
+        return "";
+    }
+  };
 
-    if (response.ok) {
-      const passengers = await response.json();
-      setResults(passengers);
+  const prettifyChartsTitle = (chartType: string): string => {
+    switch (chartType) {
+      case "doughnut":
+        return (
+          "Répartition en doughnut " +
+          prettifyFilter("sex") +
+          " de " +
+          prettifyFilter("age") +
+          " en " +
+          prettifyFilter("pclass")
+        );
+      case "line":
+        return (
+          "Répartition de l'âge en fonction des effectifs " +
+          prettifyFilter("sex") +
+          " en " +
+          prettifyFilter("pclass") +
+          " et qui ont " +
+          prettifyFilter("age")
+        );
+      default:
+        return "";
     }
   };
 
@@ -82,13 +122,14 @@ export default function Search() {
   }, []);
 
   useEffect(() => {
+    const { sex, age, pclass } = filter;
     (async () => {
       const response = await fetch("/api/stats", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(filter),
+        body: JSON.stringify({ sex, age, pclass }),
       });
 
       if (response.ok) {
@@ -113,12 +154,12 @@ export default function Search() {
             .length,
         ],
         backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(255, 206, 86, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-          "rgba(153, 102, 255, 0.2)",
-          "rgba(255, 159, 64, 0.2)",
+          "rgba(255, 99, 132, 0.80)",
+          "rgba(54, 162, 235, 0.80)",
+          "rgba(255, 206, 86, 0.3)",
+          "rgba(75, 192, 192, 0.3)",
+          "rgba(153, 102, 255, 0.5)",
+          "rgba(255, 159, 64, 1)",
         ],
         borderColor: [
           "rgba(255, 99, 132, 1)",
@@ -159,18 +200,18 @@ export default function Search() {
   console.log(selectedPassengers);
   return (
     <main className={styles.container}>
-      <h1 className={styles.title}>Recherche</h1>
-      <h2 className={styles.subtitle}>Connecté en tant que {user}</h2>
-      <button
-        className={styles.logoutBtn}
-        onClick={() => {
-          sessionStorage.removeItem("logged");
-          router.push("/");
-        }}
-      >
-        Logout
-      </button>
-      <form className={styles.form} action="" onSubmit={handleSubmit}>
+      {showSideBar && user ? <SideBar name={user} /> : null}
+      <header className={styles.header}>
+        <h1 className={styles.title}>Recherche</h1>
+        <button
+          onClick={() => {
+            setShowSideBar(!showSideBar);
+          }}
+        >
+          <Image src="/menu.svg" alt="menu" width={50} height={50} />
+        </button>
+      </header>
+      <form className={styles.form} action="">
         <label htmlFor="search">Recherche</label>
         <select
           name="sex"
@@ -232,6 +273,7 @@ export default function Search() {
       </form>
       {results && (
         <div className={styles.charts}>
+          <h2>{prettifyChartsTitle("doughnut")}</h2>
           <Doughnut
             data={chartData} options={chartOptions}
           />
@@ -242,19 +284,8 @@ export default function Search() {
           ))}
         </ul>
         </>
+          <h2>{prettifyChartsTitle("line")}</h2>
           <Line
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: "top" as const,
-                },
-                title: {
-                  display: true,
-                  text: "Chart.js Line Chart",
-                },
-              },
-            }}
             data={{
               labels: ageSetUp().toString().split(","),
               datasets: [
@@ -269,7 +300,7 @@ export default function Search() {
                           passenger.Age < ages[index + 1]
                       ).length
                   ),
-                  backgroundColor: ["rgba(255, 99, 132, 0.2)"],
+                  backgroundColor: ["rgba(255, 99, 132, 1)"],
                   borderColor: ["rgba(255, 99, 132, 1)"],
                   borderWidth: 1,
                 },
@@ -284,7 +315,7 @@ export default function Search() {
                           passenger.Age < ages[index + 1]
                       ).length
                   ),
-                  backgroundColor: ["rgba(54, 162, 235, 0.2)"],
+                  backgroundColor: ["rgba(54, 162, 235, 1)"],
                   borderColor: ["rgba(54, 162, 235, 1)"],
                   borderWidth: 1,
                 },
