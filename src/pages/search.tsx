@@ -102,6 +102,14 @@ export default function Search() {
     <main>
       <h1>Recherche</h1>
       <h2>Connecté en tant que {user}</h2>
+      <button
+        onClick={() => {
+          sessionStorage.removeItem("logged");
+          router.push("/");
+        }}
+      >
+        Logout
+      </button>
       <form action="" onSubmit={handleSubmit}>
         <label htmlFor="search">Recherche</label>
         <select

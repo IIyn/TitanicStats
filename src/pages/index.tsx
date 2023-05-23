@@ -8,10 +8,9 @@ import User from "@/types/User";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [name, setName] = useState<string>("")
+  const [name, setName] = useState<string>("");
   const [connectedUser, setConnectedUser] = useState<User | null>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -23,8 +22,7 @@ export default function Home() {
       },
       body: JSON.stringify({ name, email, password }),
     });
-    const getUser =
-    await fetch("/api/login", {
+    const getUser = await fetch("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,6 +42,14 @@ export default function Home() {
     }
   }, [connectedUser]);
 
+  useEffect(() => {
+    // get the logged user from the sessionStorage
+    const loggedUser = sessionStorage.getItem("logged");
+    if (loggedUser) {
+      router.push("/search");
+    }
+  }, []);
+
   return (
     <>
       <Head>
@@ -56,9 +62,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <h1 className={styles.title}>S'inscrire</h1>
+        <h1 className={styles.title}>{`S'inscrire`}</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
-        <label htmlFor="email">Nom</label>
+          <label htmlFor="email">Nom</label>
           <input
             type="text"
             id="name"
@@ -85,9 +91,13 @@ export default function Home() {
           <button type="submit">Se connecter</button>
         </form>
 
-        <p onClick={() => {
-          router.push("/login");
-        }}>Vous avez déjà un compte ?</p>
+        <p
+          onClick={() => {
+            router.push("/login");
+          }}
+        >
+          Vous avez déjà un compte ?
+        </p>
       </main>
     </>
   );
