@@ -9,7 +9,7 @@ export default async function handler(request: any, response: any) {
 
   const results = await collection
     .find({
-        Age: {$lt: age.min, $gt: age.max},
+        Age: {$gt: age.min, $lt: age.max},
         Survived: survived,
         Pclass: pclass,
         Sex: sex
