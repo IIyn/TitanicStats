@@ -1,10 +1,8 @@
 import { useState, useEffect, FormEvent } from "react";
 import Head from "next/head";
-import Image from "next/image";
 import router from "next/router";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
-import { redirect } from "next/dist/server/api-utils";
 import User from "@/types/User";
 
 const inter = Inter({ subsets: ["latin"] });
