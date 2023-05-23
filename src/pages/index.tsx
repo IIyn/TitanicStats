@@ -90,8 +90,8 @@ export default function Home() {
           />
           <button type="submit">Se connecter</button>
         </form>
-
         <p
+          className={styles.loginButton}
           onClick={() => {
             router.push("/login");
           }}

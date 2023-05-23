@@ -1,5 +1,6 @@
 import router from "next/router";
 import { FormEvent, useEffect, useState } from "react";
+import styles from "@/styles/Search.module.css";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -99,10 +100,11 @@ export default function Search() {
   }, [update]);
 
   return (
-    <main>
-      <h1>Recherche</h1>
-      <h2>Connecté en tant que {user}</h2>
+    <main className={styles.container}>
+      <h1 className={styles.title}>Recherche</h1>
+      <h2 className={styles.subtitle}>Connecté en tant que {user}</h2>
       <button
+        className={styles.logoutBtn}
         onClick={() => {
           sessionStorage.removeItem("logged");
           router.push("/");
@@ -110,7 +112,7 @@ export default function Search() {
       >
         Logout
       </button>
-      <form action="" onSubmit={handleSubmit}>
+      <form className={styles.form} action="" onSubmit={handleSubmit}>
         <label htmlFor="search">Recherche</label>
         <select
           name="sex"
@@ -171,7 +173,7 @@ export default function Search() {
         </select>
       </form>
       {results && (
-        <>
+        <div className={styles.charts}>
           <Doughnut
             data={{
               labels: ["Survécu", "Mort"],
@@ -255,7 +257,7 @@ export default function Search() {
               ],
             }}
           />
-        </>
+        </div>
       )}
     </main>
   );

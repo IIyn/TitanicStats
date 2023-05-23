@@ -76,6 +76,7 @@ export default function Login() {
           <button type="submit">Se connecter</button>
         </form>
         <p
+          className={styles.loginButton}
           onClick={() => {
             router.push("/");
           }}
