@@ -1,5 +1,6 @@
 import router from "next/router";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useRef, MouseEvent } from "react";
+import type { InteractionItem } from 'chart.js';
 import styles from "@/styles/Search.module.css";
 import {
   Chart as ChartJS,
@@ -50,7 +51,6 @@ export default function Search() {
     for (let i = 0; i < 5; i++) {
       ageArray.push(filter.age.min + ageStep * i);
     }
-    console.log(ageArray);
     return ageArray;
   };
 
@@ -96,9 +96,67 @@ export default function Search() {
         setResults(passengers);
       }
       setUpdate(false);
+      
+      
     })();
   }, [update]);
 
+  const chartData = {
+    labels: ["Survécu", "Mort"],
+    datasets: [
+      {
+        label: "Passagers",
+        data: [
+          results?.filter((passenger) => passenger.Survived === true)
+            .length,
+          results?.filter((passenger) => passenger.Survived === false)
+            .length,
+        ],
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(54, 162, 235, 0.2)",
+          "rgba(255, 206, 86, 0.2)",
+          "rgba(75, 192, 192, 0.2)",
+          "rgba(153, 102, 255, 0.2)",
+          "rgba(255, 159, 64, 0.2)",
+        ],
+        borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  }
+  
+  const [selectedPassengers, setSelectedPassengers] = useState<string[] | undefined>(undefined);
+
+  const chartOptions = {
+    onClick: (event: MouseEvent, elements: any[]) => {
+      if (elements.length > 0) {
+        const element = elements[0];
+        const index = element.index;
+        const label = chartData.labels[index];
+        const passengers = results?.filter(
+          (passenger) => passenger.Survived === (label === "Survécu")
+        );
+        const passengerNames = passengers?.map(
+          (passenger) => passenger.Name + " (" + passenger.Age + ")"
+        );
+        console.log("Label:", label);
+        console.log("Passengers:", passengerNames);
+        setSelectedPassengers(passengerNames)
+        
+        
+      }
+    },
+  };
+
+  console.log(selectedPassengers);
   return (
     <main className={styles.container}>
       <h1 className={styles.title}>Recherche</h1>
@@ -175,39 +233,15 @@ export default function Search() {
       {results && (
         <div className={styles.charts}>
           <Doughnut
-            data={{
-              labels: ["Survécu", "Mort"],
-              datasets: [
-                {
-                  label: "Survécu",
-                  data: [
-                    results.filter((passenger) => passenger.Survived === true)
-                      .length,
-                    results.filter((passenger) => passenger.Survived === false)
-                      .length,
-                  ],
-                  backgroundColor: [
-                    "rgba(255, 99, 132, 0.2)",
-                    "rgba(54, 162, 235, 0.2)",
-                    "rgba(255, 206, 86, 0.2)",
-                    "rgba(75, 192, 192, 0.2)",
-                    "rgba(153, 102, 255, 0.2)",
-                    "rgba(255, 159, 64, 0.2)",
-                  ],
-                  borderColor: [
-                    "rgba(255, 99, 132, 1)",
-                    "rgba(54, 162, 235, 1)",
-                    "rgba(255, 206, 86, 1)",
-                    "rgba(75, 192, 192, 1)",
-                    "rgba(153, 102, 255, 1)",
-                    "rgba(255, 159, 64, 1)",
-                  ],
-                  borderWidth: 1,
-                },
-              ],
-            }}
+            data={chartData} options={chartOptions}
           />
-
+        <>
+        <ul>
+          {selectedPassengers?.map((passenger, index) => (
+            <li key={index}>{passenger}</li>
+          ))}
+        </ul>
+        </>
           <Line
             options={{
               responsive: true,
