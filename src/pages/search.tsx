@@ -1,5 +1,5 @@
 import router from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, MouseEvent } from "react";
 import styles from "@/styles/Search.module.css";
 import Image from "next/image";
 import {
@@ -139,9 +139,60 @@ export default function Search() {
     })();
   }, [update]);
 
-  useEffect(() => {
-  }, [showSideBar]);
+  const chartData = {
+    labels: ["Survécu", "Mort"],
+    datasets: [
+      {
+        label: "Passagers",
+        data: [
+          results?.filter((passenger) => passenger.Survived === true).length,
+          results?.filter((passenger) => passenger.Survived === false).length,
+        ],
+        backgroundColor: [
+          "rgba(255, 99, 132, 0.2)",
+          "rgba(54, 162, 235, 0.2)",
+          "rgba(255, 206, 86, 0.2)",
+          "rgba(75, 192, 192, 0.2)",
+          "rgba(153, 102, 255, 0.2)",
+          "rgba(255, 159, 64, 0.2)",
+        ],
+        borderColor: [
+          "rgba(255, 99, 132, 1)",
+          "rgba(54, 162, 235, 1)",
+          "rgba(255, 206, 86, 1)",
+          "rgba(75, 192, 192, 1)",
+          "rgba(153, 102, 255, 1)",
+          "rgba(255, 159, 64, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
 
+  const [selectedPassengers, setSelectedPassengers] = useState<
+    string[] | undefined
+  >(undefined);
+
+  const chartOptions = {
+    onClick: (event: MouseEvent, elements: any[]) => {
+      if (elements.length > 0) {
+        const element = elements[0];
+        const index = element.index;
+        const label = chartData.labels[index];
+        const passengers = results?.filter(
+          (passenger) => passenger.Survived === (label === "Survécu")
+        );
+        const passengerNames = passengers?.map(
+          (passenger) => passenger.Name + " (" + passenger.Age + ")"
+        );
+        console.log("Label:", label);
+        console.log("Passengers:", passengerNames);
+        setSelectedPassengers(passengerNames);
+      }
+    },
+  };
+
+  console.log(selectedPassengers);
   return (
     <main className={styles.container}>
       {showSideBar && user ? <SideBar name={user} /> : null}
@@ -218,42 +269,14 @@ export default function Search() {
       {results && (
         <div className={styles.charts}>
           <h2>{prettifyChartsTitle("doughnut")}</h2>
-          <Doughnut
-            title="Passagers"
-            data={{
-              labels: ["Survécu", "Morts"],
-              datasets: [
-                {
-                  label: "Passagers",
-                  data: [
-                    results.filter((passenger) => passenger.Survived === true)
-                      .length,
-                    results.filter((passenger) => passenger.Survived === false)
-                      .length,
-                  ],
-                  backgroundColor: [
-                    "rgba(255, 99, 132, 0.80)",
-                    "rgba(54, 162, 235, 0.80)",
-                    "rgba(255, 206, 86, 0.3)",
-                    "rgba(75, 192, 192, 0.3)",
-                    "rgba(153, 102, 255, 0.5)",
-                    "rgba(255, 159, 64, 1)",
-                  ],
-                  borderColor: [
-                    "rgba(255, 99, 132, 1)",
-                    "rgba(54, 162, 235, 1)",
-                    "rgba(255, 206, 86, 1)",
-                    "rgba(75, 192, 192, 1)",
-                    "rgba(153, 102, 255, 1)",
-                    "rgba(255, 159, 64, 1)",
-                  ],
-                  borderWidth: 1,
-                },
-              ],
-            }}
-          />
-
-          <h2>{prettifyChartsTitle("line")}</h2>
+          <Doughnut data={chartData} options={chartOptions} />
+          <>
+            <ul>
+              {selectedPassengers?.map((passenger, index) => (
+                <li key={index}>{passenger}</li>
+              ))}
+            </ul>
+          </>
           <Line
             data={{
               labels: ageSetUp().toString().split(","),
