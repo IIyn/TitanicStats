@@ -170,21 +170,20 @@ export default function Search() {
     // disconstruct the filter object
     const { sex, age, pclass } = filter;
     (async () => {
-      try {
-        await fetch("/api/stats", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ sex, age, pclass }),
+      await fetch("/api/stats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ sex, age, pclass }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setResults(data);
         })
-          .then((response) => response.json())
-          .then((data) => {
-            setResults(data);
-          });
-      } catch (error) {
-        console.error(error);
-      }
+        .catch((error) => {
+          console.log(error);
+        });
     })();
   }, [filter]);
 

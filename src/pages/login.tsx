@@ -26,17 +26,26 @@ export default function Login() {
     } else if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {
       setErrorMessage("Veuillez entrer une adresse email valide");
     } else {
-      const response = await fetch("/api/login", {
+      await fetch("/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      });
-      if (response.ok) {
-        const user = await response.json();
-        setConnectedUser(user);
-      }
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            setErrorMessage("Email ou mot de passe incorrect");
+          }
+        })
+        .then((user) => {
+          setConnectedUser(user);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
 
@@ -66,37 +75,39 @@ export default function Login() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <h1 className={styles.title}>Se connecter</h1>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            onChange={(event) => {
-              const email = event.target.value;
-              setFormData((prevState) => ({
-                ...prevState,
-                email: email,
-              }));
-            }}
-          />
-          <label htmlFor="password">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            onChange={(event) => {
-              const password = event.target.value;
-              setFormData((prevState) => ({
-                ...prevState,
-                password: password,
-              }));
-            }}
-          />
-          {errorMessage && (
-            <p className={styles.errorMessage}>{errorMessage}</p>
-          )}
-          <button type="submit">Se connecter</button>
-        </form>
+        <div className={styles.formContainer}>
+          <h1>Se connecter</h1>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="text"
+              id="email"
+              onChange={(event) => {
+                const email = event.target.value;
+                setFormData((prevState) => ({
+                  ...prevState,
+                  email: email,
+                }));
+              }}
+            />
+            <label htmlFor="password">Mot de passe</label>
+            <input
+              type="password"
+              id="password"
+              onChange={(event) => {
+                const password = event.target.value;
+                setFormData((prevState) => ({
+                  ...prevState,
+                  password: password,
+                }));
+              }}
+            />
+            {errorMessage && (
+              <p className={styles.errorMessage}>{errorMessage}</p>
+            )}
+            <button type="submit">Se connecter</button>
+          </form>
+        </div>
         <p
           className={styles.loginButton}
           onClick={() => {
