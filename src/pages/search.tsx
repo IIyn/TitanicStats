@@ -1,5 +1,5 @@
 import router from "next/router";
-import { useEffect, useState, MouseEvent, useRef } from "react";
+import { useEffect, useState, useRef, MouseEvent } from "react";
 import styles from "@/styles/Search.module.css";
 import Image from "next/image";
 import {
@@ -8,14 +8,13 @@ import {
   LinearScale,
   PointElement,
   LineElement,
-  Title,
   ArcElement,
   Tooltip,
   Legend,
-  Chart,
 } from "chart.js";
 import { Doughnut, Line, getElementAtEvent } from "react-chartjs-2";
 import SideBar from "@/components/SideBar";
+import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 
 ChartJS.register(
   CategoryScale,
@@ -27,20 +26,20 @@ ChartJS.register(
   Legend
 );
 
+// this type is specific to the data we send to the API
+type FilterType = {
+  sex: string;
+  age: { min: number; max: number };
+  pclass: number;
+};
+
 export default function Search() {
   const [user, setUser] = useState<string>();
-  const [update, setUpdate] = useState<boolean>(false);
 
-  const [filter] = useState<{
-    sex: string;
-    age: { min: number; max: number };
-    pclass: number;
-    survived: boolean;
-  }>({
+  const [filter, setFilter] = useState<FilterType>({
     sex: "male",
     age: { min: 0, max: 18 },
     pclass: 1,
-    survived: true,
   });
 
   const [showSideBar, setShowSideBar] = useState<boolean>(false);
@@ -50,38 +49,53 @@ export default function Search() {
   const [selectedPassengers, setSelectedPassengers] = useState<
     string[] | undefined
   >(undefined);
-  const chartRef = useRef<Chart>();
+  const chartRef = useRef<
+    ChartJSOrUndefined<"doughnut", (number | undefined)[], unknown> | undefined
+  >();
 
-  const doughnutClick = (event: any) => {
+  /**
+   *
+   * @param event the event that triggered the function
+   */
+  const doughnutClick = (event: MouseEvent<HTMLCanvasElement>) => {
     const elements = getElementAtEvent(
       chartRef.current ? chartRef.current : (chartRef.current as any),
       event
     );
-    const element = elements[0];
-    const index = element.index;
-    const label = chartData.labels[index];
-    const passengers = results?.filter(
-      (passenger) => passenger.Survived === (label === "Survécu")
-    );
-    const passengerNames = passengers?.map(
-      (passenger) => passenger.Name + " (" + passenger.Age + ")"
-    );
-    console.log("Label:", label);
-    console.log("Passengers:", passengerNames);
-    setSelectedPassengers(passengerNames);
+    if (elements.length > 0) {
+      const element = elements[0]; //we get an array of one element
+      const index = element.index;
+      const label = chartData.labels[index];
+      const passengers = results?.filter(
+        (passenger) => passenger.Survived === (label === "Survécu")
+      );
+      const passengerNames = passengers?.map(
+        (passenger) => passenger.Name + " (" + passenger.Age + ")"
+      );
+      setSelectedPassengers(passengerNames);
+    }
   };
 
+  /**
+   * This function is use to set up the age range for the line chart
+   * @returns an array of numbers with the age range
+   */
   const ageSetUp = (): Array<number> => {
-    // split the age range into 5 parts
     const ageRange = filter.age.max - filter.age.min;
     const ageStep = ageRange / 5;
     const ageArray = [];
     for (let i = 0; i < 5; i++) {
+      // pushing the age range in the array with 5 steps floored
       ageArray.push(Math.floor(filter.age.min + ageStep * i));
     }
     return ageArray;
   };
 
+  /**
+   *
+   * @param filterType the type of filter we work on
+   * @returns a string with the prettified filter in french
+   */
   const prettifyFilter = (filterType: string): string => {
     switch (filterType) {
       case "sex":
@@ -109,6 +123,11 @@ export default function Search() {
     }
   };
 
+  /**
+   *
+   * @param chartType The type of chart to prettify (doughnut or line)
+   * @returns a string with the prettified title in french
+   */
   const prettifyChartsTitle = (chartType: string): string => {
     switch (chartType) {
       case "doughnut":
@@ -146,23 +165,26 @@ export default function Search() {
   }, []);
 
   useEffect(() => {
+    // disconstruct the filter object
     const { sex, age, pclass } = filter;
     (async () => {
-      const response = await fetch("/api/stats", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sex, age, pclass }),
-      });
-
-      if (response.ok) {
-        const passengers = await response.json();
-        setResults(passengers);
+      try {
+        const response = await fetch("/api/stats", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ sex, age, pclass }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            setResults(data);
+          });
+      } catch (error) {
+        console.error(error);
       }
-      setUpdate(false);
     })();
-  }, [update]);
+  }, [filter]);
 
   const chartData = {
     labels: ["Survécu", "Mort"],
@@ -212,8 +234,11 @@ export default function Search() {
           name="sex"
           id="sex-select"
           onChange={(event) => {
-            filter.sex = event.target.value;
-            setUpdate(true);
+            const newFilter = event.target.value;
+            setFilter((prevState) => ({
+              ...prevState,
+              sex: newFilter,
+            }));
           }}
         >
           <option value="male" disabled>
@@ -226,21 +251,24 @@ export default function Search() {
           name="age"
           id="age-select"
           onChange={(event) => {
+            const newFilter = filter;
             switch (event.target.value) {
               case "below18":
-                filter.age.min = 0;
-                filter.age.max = 18;
+                newFilter.age.min = 0;
+                newFilter.age.max = 18;
+                setFilter({ ...newFilter });
                 break;
               case "above18-below45":
-                filter.age.min = 18;
-                filter.age.max = 45;
+                newFilter.age.min = 18;
+                newFilter.age.max = 45;
+                setFilter({ ...newFilter });
                 break;
               case "above45":
-                filter.age.min = 45;
-                filter.age.max = 150;
+                newFilter.age.min = 45;
+                newFilter.age.max = 150;
+                setFilter({ ...newFilter });
                 break;
             }
-            setUpdate(true);
           }}
         >
           <option value="below18" disabled>
@@ -254,8 +282,11 @@ export default function Search() {
           name="class"
           id="class-select"
           onChange={(event) => {
-            filter.pclass = parseInt(event.target.value);
-            setUpdate(true);
+            const newFilter = parseInt(event.target.value);
+            setFilter((prevState) => ({
+              ...prevState,
+              pclass: newFilter,
+            }));
           }}
         >
           <option value="1" disabled>
@@ -269,12 +300,7 @@ export default function Search() {
       {results && (
         <div className={styles.charts}>
           <h2>{prettifyChartsTitle("doughnut")}</h2>
-          <Doughnut
-            data={chartData}
-            // options={chartOptions}
-            ref={chartRef as any}
-            onClick={doughnutClick}
-          />
+          <Doughnut data={chartData} ref={chartRef} onClick={doughnutClick} />
           <>
             <ul>
               {selectedPassengers?.map((passenger, index) => (

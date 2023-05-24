@@ -5,12 +5,18 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import User from "@/types/User";
 
-const inter = Inter({ subsets: ["latin"] });
+type FormData = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 export default function Home() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [name, setName] = useState<string>("");
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [connectedUser, setConnectedUser] = useState<User | null>(null);
 
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -18,6 +24,7 @@ export default function Home() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
+    const { name, email, password } = formData;
     if (name === "" || email === "" || password === "") {
       setErrorMessage("Veuillez remplir tous les champs");
     } else if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {
@@ -84,7 +91,11 @@ export default function Home() {
             type="text"
             id="name"
             onChange={(event) => {
-              setName(event.target.value);
+              const name = event.target.value;
+              setFormData((prevState) => ({
+                ...prevState,
+                name,
+              }));
             }}
           />
           <label htmlFor="email">Email</label>
@@ -92,7 +103,11 @@ export default function Home() {
             type="text"
             id="email"
             onChange={(event) => {
-              setEmail(event.target.value);
+              const email = event.target.value;
+              setFormData((prevState) => ({
+                ...prevState,
+                email: email,
+              }));
             }}
           />
           <label htmlFor="password">Mot de passe</label>
@@ -100,7 +115,11 @@ export default function Home() {
             type="password"
             id="password"
             onChange={(event) => {
-              setPassword(event.target.value);
+              const password = event.target.value;
+              setFormData((prevState) => ({
+                ...prevState,
+                password: password,
+              }));
             }}
           />
           {errorMessage && (

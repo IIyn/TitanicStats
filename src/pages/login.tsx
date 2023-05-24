@@ -1,19 +1,26 @@
 import { useState, useEffect, FormEvent } from "react";
 import Head from "next/head";
 import router from "next/router";
-import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import User from "@/types/User";
 
+type FormData = {
+  email: string;
+  password: string;
+};
+
 export default function Login() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [formData, setFormData] = useState<FormData>({
+    email: "",
+    password: "",
+  } as FormData);
   const [connectedUser, setConnectedUser] = useState<User | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
+    const { email, password } = formData;
     if (email === "" || password === "") {
       setErrorMessage("Veuillez remplir tous les champs");
     } else if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {
@@ -66,7 +73,11 @@ export default function Login() {
             type="email"
             id="email"
             onChange={(event) => {
-              setEmail(event.target.value);
+              const email = event.target.value;
+              setFormData((prevState) => ({
+                ...prevState,
+                email: email,
+              }));
             }}
           />
           <label htmlFor="password">Mot de passe</label>
@@ -74,7 +85,11 @@ export default function Login() {
             type="password"
             id="password"
             onChange={(event) => {
-              setPassword(event.target.value);
+              const password = event.target.value;
+              setFormData((prevState) => ({
+                ...prevState,
+                password: password,
+              }));
             }}
           />
           {errorMessage && (
