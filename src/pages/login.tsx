@@ -75,37 +75,39 @@ export default function Login() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <h1 className={styles.title}>Se connecter</h1>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            onChange={(event) => {
-              const email = event.target.value;
-              setFormData((prevState) => ({
-                ...prevState,
-                email: email,
-              }));
-            }}
-          />
-          <label htmlFor="password">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            onChange={(event) => {
-              const password = event.target.value;
-              setFormData((prevState) => ({
-                ...prevState,
-                password: password,
-              }));
-            }}
-          />
-          {errorMessage && (
-            <p className={styles.errorMessage}>{errorMessage}</p>
-          )}
-          <button type="submit">Se connecter</button>
-        </form>
+        <div className={styles.formContainer}>
+          <h1>Se connecter</h1>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <label htmlFor="email">Email</label>
+            <input
+              type="text"
+              id="email"
+              onChange={(event) => {
+                const email = event.target.value;
+                setFormData((prevState) => ({
+                  ...prevState,
+                  email: email,
+                }));
+              }}
+            />
+            <label htmlFor="password">Mot de passe</label>
+            <input
+              type="password"
+              id="password"
+              onChange={(event) => {
+                const password = event.target.value;
+                setFormData((prevState) => ({
+                  ...prevState,
+                  password: password,
+                }));
+              }}
+            />
+            {errorMessage && (
+              <p className={styles.errorMessage}>{errorMessage}</p>
+            )}
+            <button type="submit">Se connecter</button>
+          </form>
+        </div>
         <p
           className={styles.loginButton}
           onClick={() => {

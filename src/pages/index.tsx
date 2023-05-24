@@ -85,49 +85,55 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <h1 className={styles.title}>{`S'inscrire`}</h1>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <label htmlFor="email">Nom</label>
-          <input
-            type="text"
-            id="name"
-            onChange={(event) => {
-              const name = event.target.value;
-              setFormData((prevState) => ({
-                ...prevState,
-                name,
-              }));
-            }}
-          />
-          <label htmlFor="email">Email</label>
-          <input
-            type="text"
-            id="email"
-            onChange={(event) => {
-              const email = event.target.value;
-              setFormData((prevState) => ({
-                ...prevState,
-                email: email,
-              }));
-            }}
-          />
-          <label htmlFor="password">Mot de passe</label>
-          <input
-            type="password"
-            id="password"
-            onChange={(event) => {
-              const password = event.target.value;
-              setFormData((prevState) => ({
-                ...prevState,
-                password: password,
-              }));
-            }}
-          />
-          {errorMessage && (
-            <p className={styles.errorMessage}>{errorMessage}</p>
-          )}
-          <button type="submit">{`S'inscrire`}</button>
-        </form>
+        <div className={styles.titleContainer}>
+          <h1 className={styles.title}>{`Titanic`}</h1>
+          <p>{`Titanic est une application qui regroupe la liste de l'équipage du Titanic affichant ainsi des statistiques pouvant aider à l'étude de cette tragédie.`}</p>
+        </div>
+        <div className={styles.formContainer}>
+          <h1 className={styles.subTitle}>{`S'inscrire`}</h1>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <label htmlFor="email">Nom</label>
+            <input
+              type="text"
+              id="name"
+              onChange={(event) => {
+                const name = event.target.value;
+                setFormData((prevState) => ({
+                  ...prevState,
+                  name,
+                }));
+              }}
+            />
+            <label htmlFor="email">Email</label>
+            <input
+              type="text"
+              id="email"
+              onChange={(event) => {
+                const email = event.target.value;
+                setFormData((prevState) => ({
+                  ...prevState,
+                  email: email,
+                }));
+              }}
+            />
+            <label htmlFor="password">Mot de passe</label>
+            <input
+              type="password"
+              id="password"
+              onChange={(event) => {
+                const password = event.target.value;
+                setFormData((prevState) => ({
+                  ...prevState,
+                  password: password,
+                }));
+              }}
+            />
+            {errorMessage && (
+              <p className={styles.errorMessage}>{errorMessage}</p>
+            )}
+            <button type="submit">{`S'inscrire`}</button>
+          </form>
+        </div>
         <p
           className={styles.loginButton}
           onClick={() => {
