@@ -360,11 +360,22 @@ export default function Search() {
           {selectedPassengers && (
             <div className={styles.filterList_container}>
               <h2>Liste des passagers</h2>
-              <ul className={styles.filterList}>
-                {selectedPassengers?.map((passenger, index) => (
-                  <li key={index}>{passenger}</li>
-                ))}
-              </ul>
+              <table className={styles.filterList}>
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>Âge</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedPassengers.map((passenger, index) => (
+                    <tr key={index}>
+                      <td>{passenger.split("(")[0]}</td>
+                      <td>{passenger.split("(")[1].split(")")[0]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
           <>

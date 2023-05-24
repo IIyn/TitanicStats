@@ -113,6 +113,10 @@
   margin: 1rem;
 }
 
+.filterList td, .filterList th {
+  border: rgba(0, 0, 0, 0.3) 1px solid;
+}
+
 @media screen and (min-width: 768px) {
   .form {
     flex-direction: row;

@@ -32,28 +32,32 @@ export default function Home() {
     } else if (password.length < 5) {
       setErrorMessage("Le mot de passe doit contenir au moins 5 caractères");
     } else {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-      if (response.ok) {
-        const getUser = await fetch("/api/login", {
+      try {
+        const response = await fetch("/api/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ name, email, password }),
         });
-        console.log(getUser);
-        if (getUser.ok) {
-          const user = await getUser.json();
-          setConnectedUser(user);
+        if (response.ok) {
+          const getUser = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+          console.log(getUser);
+          if (getUser.ok) {
+            const user = await getUser.json();
+            setConnectedUser(user);
+          }
+        } else {
+          setErrorMessage("Cet email est déjà utilisé");
         }
-      } else {
-        setErrorMessage("Cet email est déjà utilisé");
+      } catch (error) {
+        console.error(error);
       }
     }
   };
