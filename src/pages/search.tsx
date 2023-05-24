@@ -155,6 +155,7 @@ export default function Search() {
 
   useEffect(() => {
     // get the logged user from the sessionStorage
+    console.log(JSON.parse(sessionStorage.getItem("logged") as string).token);
     const loggedUser = sessionStorage.getItem("logged");
     if (loggedUser) {
       // decrypt the jwt to get the name
@@ -169,23 +170,38 @@ export default function Search() {
   useEffect(() => {
     // disconstruct the filter object
     const { sex, age, pclass } = filter;
-    (async () => {
-      await fetch("/api/stats", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sex, age, pclass }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setResults(data);
+    if (sessionStorage.getItem("logged")) {
+      (async () => {
+        await fetch("/api/stats", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "Bearer " +
+              JSON.parse(sessionStorage.getItem("logged") as string).token,
+          },
+          body: JSON.stringify({ sex, age, pclass }),
         })
-        .catch((error) => {
-          console.log(error);
-        });
-    })();
+          .then((response) => response.json())
+          .then((data) => {
+            setResults(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      })();
+    }
   }, [filter]);
+
+  useEffect(() => {
+    const passengers = results?.filter(
+      (passenger) => passenger.Survived === true
+    );
+    const passengerNames = passengers?.map(
+      (passenger) => passenger.Name + " (" + passenger.Age + ")"
+    );
+    setSelectedPassengers(passengerNames);
+  }, [results]);
 
   const chartDoughnutData = {
     labels: ["Survécu", "Mort"],
