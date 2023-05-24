@@ -15,7 +15,7 @@ import {
   Chart,
 } from "chart.js";
 import { Doughnut, Line, getElementAtEvent } from "react-chartjs-2";
-import SideBar from "@/components/SideBar";
+import Header from "@/components/Header";
 
 ChartJS.register(
   CategoryScale,
@@ -43,8 +43,6 @@ export default function Search() {
     survived: true,
   });
 
-  const [showSideBar, setShowSideBar] = useState<boolean>(false);
-
   const [results, setResults] = useState<Passenger[]>();
 
   const [selectedPassengers, setSelectedPassengers] = useState<
@@ -64,7 +62,7 @@ export default function Search() {
       (passenger) => passenger.Survived === (label === "Survécu")
     );
     const passengerNames = passengers?.map(
-      (passenger) => passenger.Name + " (" + passenger.Age + ")"
+      (passenger) => passenger.Name + " (" + passenger.Age + " ans" +")"
     );
     console.log("Label:", label);
     console.log("Passengers:", passengerNames);
@@ -196,19 +194,10 @@ export default function Search() {
 
   return (
     <main className={styles.container}>
-      {showSideBar && user ? <SideBar name={user} /> : null}
-      <header className={styles.header}>
-        <h1 className={styles.title}>Recherche</h1>
-        <button
-          onClick={() => {
-            setShowSideBar(!showSideBar);
-          }}
-        >
-          <Image src="/menu.svg" alt="menu" width={50} height={50} />
-        </button>
-      </header>
+      {user ? <Header name={user} /> : null}
+      <h1 className={styles.title}>Statistiques</h1>
       <form className={styles.form} action="">
-        <label htmlFor="search">Recherche</label>
+        <label htmlFor="search">Filtres</label>
         <select
           name="sex"
           id="sex-select"
@@ -269,20 +258,29 @@ export default function Search() {
       </form>
       {results && (
         <div className={styles.charts}>
-          <h2>{prettifyChartsTitle("doughnut")}</h2>
+          
+          <>
+          <figure className={styles.figure}>
           <Doughnut
             data={chartData}
             // options={chartOptions}
             ref={chartRef as any}
             onClick={doughnutClick}
           />
-          <>
-            <ul>
+          <figcaption className={styles.figcaption}>{prettifyChartsTitle("doughnut")}</figcaption>
+          </figure>
+          </>
+          {selectedPassengers &&
+          <div className={styles.filterList_container}>
+            <h2>Liste des passagers</h2>
+            <ul className={styles.filterList}>
               {selectedPassengers?.map((passenger, index) => (
                 <li key={index}>{passenger}</li>
               ))}
             </ul>
-          </>
+          </div>}
+          <>
+          <figure className={styles.figure}>
           <Line
             data={{
               labels: ageSetUp().toString().split(","),
@@ -320,6 +318,9 @@ export default function Search() {
               ],
             }}
           />
+          <figcaption className={styles.figcaption}>{prettifyChartsTitle("line")}</figcaption>
+          </figure>
+          </>
         </div>
       )}
     </main>

@@ -1,18 +1,20 @@
 import router from "next/router";
 import styles from "@/styles/SideBar.module.css";
 
-export default function SideBar({ name }: { name: string }) {
+export default function Header({ name }: { name: string }) {
   return (
-    <div className={styles.sideBar}>
-      <h1>Connecté en tant que {name} </h1>
+    <header className={styles.header}>
+      <div className={styles.container}>
+      <h2>Bonjour {name}</h2>
       <button
         onClick={() => {
           sessionStorage.removeItem("logged");
           router.push("/");
         }}
       >
-        Se déconnecter
+        <img src="/menu.svg" alt="menu"></img>
       </button>
-    </div>
+      </div>
+    </header>
   );
 }
