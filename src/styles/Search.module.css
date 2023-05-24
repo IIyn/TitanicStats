@@ -3,7 +3,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 .title {
@@ -15,20 +14,6 @@
 .subtitle {
   color: #fff;
   margin-bottom: 1rem;
-}
-
-.logoutBtn {
-  background-color: #e50914;
-  color: #fff;
-  border: none;
-  border-radius: 0.3rem;
-  padding: 0.6rem 1rem;
-  cursor: pointer;
-  margin-bottom: 1rem;
-}
-
-.logout-btn:hover {
-  background-color: #b80c15;
 }
 
 .form {
