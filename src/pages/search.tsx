@@ -65,7 +65,7 @@ export default function Search() {
     if (elements.length > 0) {
       const element = elements[0]; //we get an array of one element
       const index = element.index;
-      const label = chartData.labels[index];
+      const label = chartDoughnutData.labels[index];
       const passengers = results?.filter(
         (passenger) => passenger.Survived === (label === "Survécu")
       );
@@ -132,7 +132,7 @@ export default function Search() {
     switch (chartType) {
       case "doughnut":
         return (
-          "Répartition en doughnut " +
+          "Répartition en donut " +
           prettifyFilter("sex") +
           " de " +
           prettifyFilter("age") +
@@ -171,7 +171,7 @@ export default function Search() {
     const { sex, age, pclass } = filter;
     (async () => {
       try {
-        const response = await fetch("/api/stats", {
+        await fetch("/api/stats", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -188,7 +188,7 @@ export default function Search() {
     })();
   }, [filter]);
 
-  const chartData = {
+  const chartDoughnutData = {
     labels: ["Survécu", "Mort"],
     datasets: [
       {
@@ -213,6 +213,42 @@ export default function Search() {
           "rgba(153, 102, 255, 1)",
           "rgba(255, 159, 64, 1)",
         ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartLineData = {
+    labels: ageSetUp().toString().split(","),
+    datasets: [
+      {
+        label: "Survécu",
+        data: ageSetUp().map(
+          (age, index, ages) =>
+            results?.filter(
+              (passenger) =>
+                passenger.Survived === true &&
+                passenger.Age > age &&
+                passenger.Age < ages[index + 1]
+            ).length
+        ),
+        backgroundColor: ["rgba(255, 99, 132, 1)"],
+        borderColor: ["rgba(255, 99, 132, 1)"],
+        borderWidth: 1,
+      },
+      {
+        label: "Mort",
+        data: ageSetUp().map(
+          (age, index, ages) =>
+            results?.filter(
+              (passenger) =>
+                passenger.Survived === false &&
+                passenger.Age > age &&
+                passenger.Age < ages[index + 1]
+            ).length
+        ),
+        backgroundColor: ["rgba(54, 162, 235, 1)"],
+        borderColor: ["rgba(54, 162, 235, 1)"],
         borderWidth: 1,
       },
     ],
@@ -296,7 +332,7 @@ export default function Search() {
           <>
             <figure className={styles.figure}>
               <Doughnut
-                data={chartData}
+                data={chartDoughnutData}
                 // options={chartOptions}
                 ref={chartRef as any}
                 onClick={doughnutClick}
@@ -318,43 +354,7 @@ export default function Search() {
           )}
           <>
             <figure className={styles.figure}>
-              <Line
-                data={{
-                  labels: ageSetUp().toString().split(","),
-                  datasets: [
-                    {
-                      label: "Survécu",
-                      data: ageSetUp().map(
-                        (age, index, ages) =>
-                          results.filter(
-                            (passenger) =>
-                              passenger.Survived === true &&
-                              passenger.Age > age &&
-                              passenger.Age < ages[index + 1]
-                          ).length
-                      ),
-                      backgroundColor: ["rgba(255, 99, 132, 1)"],
-                      borderColor: ["rgba(255, 99, 132, 1)"],
-                      borderWidth: 1,
-                    },
-                    {
-                      label: "Mort",
-                      data: ageSetUp().map(
-                        (age, index, ages) =>
-                          results.filter(
-                            (passenger) =>
-                              passenger.Survived === false &&
-                              passenger.Age > age &&
-                              passenger.Age < ages[index + 1]
-                          ).length
-                      ),
-                      backgroundColor: ["rgba(54, 162, 235, 1)"],
-                      borderColor: ["rgba(54, 162, 235, 1)"],
-                      borderWidth: 1,
-                    },
-                  ],
-                }}
-              />
+              <Line data={chartLineData} />
               <figcaption className={styles.figcaption}>
                 {prettifyChartsTitle("line")}
               </figcaption>
