@@ -1,7 +1,6 @@
 import router from "next/router";
 import { useEffect, useState, useRef, MouseEvent } from "react";
 import styles from "@/styles/Search.module.css";
-import Image from "next/image";
 import {
   Chart as ChartJS,
   CategoryScale,

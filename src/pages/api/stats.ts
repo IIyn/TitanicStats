@@ -1,4 +1,5 @@
 import { connectToDatabase } from "../../lib/mongodb";
+const jwt = require("jsonwebtoken");
 
 export default async function handler(request: any, response: any) {
   try {
@@ -13,6 +14,13 @@ export default async function handler(request: any, response: any) {
     if (!bearerToken) {
       response.status(401).json({ message: "Unauthorized" });
       return;
+    }
+
+    try {
+      const decoded = jwt.verify(bearerToken, process.env.JWT_SECRET_KEY);
+      request.user = decoded;
+    } catch (err) {
+      response.status(401).json({ message: "Invalid token" });
     }
 
     const { age, pclass, sex } = request.body;
