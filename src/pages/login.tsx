@@ -26,17 +26,26 @@ export default function Login() {
     } else if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {
       setErrorMessage("Veuillez entrer une adresse email valide");
     } else {
-      const response = await fetch("/api/login", {
+      await fetch("/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      });
-      if (response.ok) {
-        const user = await response.json();
-        setConnectedUser(user);
-      }
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            setErrorMessage("Email ou mot de passe incorrect");
+          }
+        })
+        .then((user) => {
+          setConnectedUser(user);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
 
