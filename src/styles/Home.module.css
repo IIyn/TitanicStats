@@ -51,6 +51,11 @@
   background-color: #b80c15;
 }
 
+.form .errorMessage {
+  color: #ff0000;
+  margin-bottom: 1rem;
+}
+
 .loginButton {
   margin-top: 2rem;
   cursor: pointer;

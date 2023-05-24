@@ -13,25 +13,40 @@ export default function Home() {
   const [name, setName] = useState<string>("");
   const [connectedUser, setConnectedUser] = useState<User | null>(null);
 
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await fetch("/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, email, password }),
-    });
-    const getUser = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    if (getUser.ok) {
-      const user = (await getUser.json()) as User[];
-      setConnectedUser(user[0]);
+    setErrorMessage("");
+    if (name === "" || email === "" || password === "") {
+      setErrorMessage("Veuillez remplir tous les champs");
+    } else if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {
+      setErrorMessage("Veuillez entrer une adresse email valide");
+    } else if (password.length < 5) {
+      setErrorMessage("Le mot de passe doit contenir au moins 5 caractères");
+    } else {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+      if (response.ok) {
+        const getUser = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+        if (getUser.ok) {
+          const user = (await getUser.json()) as User[];
+          setConnectedUser(user[0]);
+        }
+      } else {
+        setErrorMessage("Cet email est déjà utilisé");
+      }
     }
   };
 
@@ -74,7 +89,7 @@ export default function Home() {
           />
           <label htmlFor="email">Email</label>
           <input
-            type="email"
+            type="text"
             id="email"
             onChange={(event) => {
               setEmail(event.target.value);
@@ -88,7 +103,10 @@ export default function Home() {
               setPassword(event.target.value);
             }}
           />
-          <button type="submit">Se connecter</button>
+          {errorMessage && (
+            <p className={styles.errorMessage}>{errorMessage}</p>
+          )}
+          <button type="submit">{`S'inscrire`}</button>
         </form>
         <p
           className={styles.loginButton}

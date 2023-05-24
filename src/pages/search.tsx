@@ -1,6 +1,5 @@
 import router from "next/router";
-import { FormEvent, useEffect, useState, useRef, MouseEvent } from "react";
-import type { InteractionItem } from 'chart.js';
+import { useEffect, useState, MouseEvent, useRef } from "react";
 import styles from "@/styles/Search.module.css";
 import Image from "next/image";
 import {
@@ -13,8 +12,9 @@ import {
   ArcElement,
   Tooltip,
   Legend,
+  Chart,
 } from "chart.js";
-import { Doughnut, Line } from "react-chartjs-2";
+import { Doughnut, Line, getElementAtEvent } from "react-chartjs-2";
 import SideBar from "@/components/SideBar";
 
 ChartJS.register(
@@ -46,6 +46,30 @@ export default function Search() {
   const [showSideBar, setShowSideBar] = useState<boolean>(false);
 
   const [results, setResults] = useState<Passenger[]>();
+
+  const [selectedPassengers, setSelectedPassengers] = useState<
+    string[] | undefined
+  >(undefined);
+  const chartRef = useRef<Chart>();
+
+  const doughnutClick = (event: any) => {
+    const elements = getElementAtEvent(
+      chartRef.current ? chartRef.current : (chartRef.current as any),
+      event
+    );
+    const element = elements[0];
+    const index = element.index;
+    const label = chartData.labels[index];
+    const passengers = results?.filter(
+      (passenger) => passenger.Survived === (label === "Survécu")
+    );
+    const passengerNames = passengers?.map(
+      (passenger) => passenger.Name + " (" + passenger.Age + ")"
+    );
+    console.log("Label:", label);
+    console.log("Passengers:", passengerNames);
+    setSelectedPassengers(passengerNames);
+  };
 
   const ageSetUp = (): Array<number> => {
     // split the age range into 5 parts
@@ -137,8 +161,6 @@ export default function Search() {
         setResults(passengers);
       }
       setUpdate(false);
-      
-      
     })();
   }, [update]);
 
@@ -148,10 +170,8 @@ export default function Search() {
       {
         label: "Passagers",
         data: [
-          results?.filter((passenger) => passenger.Survived === true)
-            .length,
-          results?.filter((passenger) => passenger.Survived === false)
-            .length,
+          results?.filter((passenger) => passenger.Survived === true).length,
+          results?.filter((passenger) => passenger.Survived === false).length,
         ],
         backgroundColor: [
           "rgba(255, 99, 132, 0.80)",
@@ -172,32 +192,8 @@ export default function Search() {
         borderWidth: 1,
       },
     ],
-  }
-  
-  const [selectedPassengers, setSelectedPassengers] = useState<string[] | undefined>(undefined);
-
-  const chartOptions = {
-    onClick: (event: MouseEvent, elements: any[]) => {
-      if (elements.length > 0) {
-        const element = elements[0];
-        const index = element.index;
-        const label = chartData.labels[index];
-        const passengers = results?.filter(
-          (passenger) => passenger.Survived === (label === "Survécu")
-        );
-        const passengerNames = passengers?.map(
-          (passenger) => passenger.Name + " (" + passenger.Age + ")"
-        );
-        console.log("Label:", label);
-        console.log("Passengers:", passengerNames);
-        setSelectedPassengers(passengerNames)
-        
-        
-      }
-    },
   };
 
-  console.log(selectedPassengers);
   return (
     <main className={styles.container}>
       {showSideBar && user ? <SideBar name={user} /> : null}
@@ -275,16 +271,18 @@ export default function Search() {
         <div className={styles.charts}>
           <h2>{prettifyChartsTitle("doughnut")}</h2>
           <Doughnut
-            data={chartData} options={chartOptions}
+            data={chartData}
+            // options={chartOptions}
+            ref={chartRef as any}
+            onClick={doughnutClick}
           />
-        <>
-        <ul>
-          {selectedPassengers?.map((passenger, index) => (
-            <li key={index}>{passenger}</li>
-          ))}
-        </ul>
-        </>
-          <h2>{prettifyChartsTitle("line")}</h2>
+          <>
+            <ul>
+              {selectedPassengers?.map((passenger, index) => (
+                <li key={index}>{passenger}</li>
+              ))}
+            </ul>
+          </>
           <Line
             data={{
               labels: ageSetUp().toString().split(","),
