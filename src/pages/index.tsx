@@ -17,7 +17,7 @@ export default function Home() {
     email: "",
     password: "",
   });
-  const [connectedUser, setConnectedUser] = useState<User | null>(null);
+  const [connectedUser, setConnectedUser] = useState(null);
 
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -47,9 +47,10 @@ export default function Home() {
           },
           body: JSON.stringify({ email, password }),
         });
+        console.log(getUser);
         if (getUser.ok) {
-          const user = (await getUser.json()) as User[];
-          setConnectedUser(user[0]);
+          const user = await getUser.json();
+          setConnectedUser(user);
         }
       } else {
         setErrorMessage("Cet email est déjà utilisé");
@@ -59,7 +60,7 @@ export default function Home() {
 
   useEffect(() => {
     if (connectedUser) {
-      sessionStorage.setItem("logged", JSON.stringify(connectedUser?.name));
+      sessionStorage.setItem("logged", JSON.stringify(connectedUser));
       router.push("/search");
     }
   }, [connectedUser]);
