@@ -1,4 +1,5 @@
 import { connectToDatabase } from "../../lib/mongodb";
+const bcrypt = require("bcrypt");
 
 export default async function handler(request: any, response: any) {
   const { name, email, password } = request.body;
@@ -9,12 +10,16 @@ export default async function handler(request: any, response: any) {
 
   const existingUser = await collection.findOne({ email });
   if (existingUser) {
-    return response.status(409).json({ message: 'Cet utilisateur existe déjà' });
+    return response
+      .status(409)
+      .json({ message: "Cet utilisateur existe déjà" });
   }
 
-  const newUser = {name, email, password}; 
-  const results = await collection
-    .insertOne(newUser)
-    
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  const newUser = { name, email, password: hashedPassword };
+  const results = await collection.insertOne(newUser);
+
   response.status(200).json(results);
 }

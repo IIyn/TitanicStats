@@ -16,6 +16,8 @@ import { Doughnut, Line, getElementAtEvent } from "react-chartjs-2";
 import SideBar from "@/components/SideBar";
 import { ChartJSOrUndefined } from "react-chartjs-2/dist/types";
 
+const jwt = require("jsonwebtoken");
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -157,7 +159,9 @@ export default function Search() {
     // get the logged user from the sessionStorage
     const loggedUser = sessionStorage.getItem("logged");
     if (loggedUser) {
-      setUser(JSON.parse(loggedUser));
+      // decrypt the jwt to get the name
+      const decodedToken = jwt.decode(JSON.parse(loggedUser).token);
+      setUser(decodedToken.name);
     } else {
       // if no logged user, redirect to the login page
       router.push("/");

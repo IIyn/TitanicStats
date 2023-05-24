@@ -35,14 +35,14 @@ export default function Login() {
       });
       if (response.ok) {
         const user = await response.json();
-        setConnectedUser(user[0]);
+        setConnectedUser(user);
       }
     }
   };
 
   useEffect(() => {
     if (connectedUser) {
-      sessionStorage.setItem("logged", JSON.stringify(connectedUser?.name));
+      sessionStorage.setItem("logged", JSON.stringify(connectedUser));
       router.push("/search");
     }
   }, [connectedUser]);

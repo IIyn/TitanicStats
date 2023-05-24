@@ -1,4 +1,6 @@
 import { connectToDatabase } from "../../lib/mongodb";
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 export default async function handler(request: any, response: any) {
   const { email, password } = request.body;
@@ -7,15 +9,19 @@ export default async function handler(request: any, response: any) {
     process.env.NEXT_ATLAS_COLLECTION_USERS
   );
 
-  const results = await collection
-    .find({ email, password })
-    .project({
-      _id: 1,
-      name: 1,
-      email: 1,
-      password: 1,
-    })
-    .toArray();
+  const user = await collection.findOne({ email });
+  if (!user) {
+    return response.status(401).json({ message: "Mot de passe ou email invalide" });
+  }
 
-  response.status(200).json(results);
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    return response.status(401).json({ message: "Mot de passe ou email invalide" });
+  }
+
+  const token = jwt.sign({ name: user.name }, "secretKey", {
+    expiresIn: "1h",
+  });
+
+  response.status(200).json({ token });
 }
