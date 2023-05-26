@@ -48,7 +48,6 @@ export default function Home() {
             },
             body: JSON.stringify({ email, password }),
           });
-          console.log(getUser);
           if (getUser.ok) {
             const user = await getUser.json();
             setConnectedUser(user);
