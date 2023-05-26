@@ -110,10 +110,13 @@
 .filterList {
   list-style-type: none;
   color: #000;
-  margin: 1rem;
+  margin: auto;
+  padding: 0 0 5rem 0;
+  width: 95%;
 }
 
-.filterList td, .filterList th {
+.filterList td,
+.filterList th {
   border: rgba(0, 0, 0, 0.3) 1px solid;
 }
 
@@ -130,5 +133,9 @@
 
   .filterList_container {
     width: 100%;
+  }
+
+  .filterList {
+    width: auto;
   }
 }

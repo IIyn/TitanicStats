@@ -17,8 +17,7 @@ export default async function handler(request: any, response: any) {
     }
 
     try {
-      const decoded = jwt.verify(bearerToken, process.env.JWT_SECRET_KEY);
-      request.user = decoded;
+      jwt.verify(bearerToken, process.env.JWT_SECRET_KEY);
     } catch (err) {
       response.status(401).json({ message: "Invalid token" });
     }

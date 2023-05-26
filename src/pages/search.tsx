@@ -36,6 +36,8 @@ type FilterType = {
 
 export default function Search() {
   const [user, setUser] = useState<string>();
+  const [passengerListTitle, setPassengerListTitle] =
+    useState<string>("qui ont survécu");
 
   const [filter, setFilter] = useState<FilterType>({
     sex: "male",
@@ -68,10 +70,12 @@ export default function Search() {
       const passengers = results?.filter(
         (passenger) => passenger.Survived === (label === "Survécu")
       );
+
       const passengerNames = passengers?.map(
-        (passenger) => passenger.Name + " (" + passenger.Age + ")"
+        (passenger) => passenger.Name + " [" + Math.ceil(passenger.Age) + "]"
       );
       setSelectedPassengers(passengerNames);
+      setPassengerListTitle(label === "Survécu" ? "qui ont survécu" : "morts");
     }
   };
 
@@ -154,7 +158,6 @@ export default function Search() {
 
   useEffect(() => {
     // get the logged user from the sessionStorage
-    console.log(JSON.parse(sessionStorage.getItem("logged") as string).token);
     const loggedUser = sessionStorage.getItem("logged");
     if (loggedUser) {
       // decrypt the jwt to get the name
@@ -197,9 +200,10 @@ export default function Search() {
       (passenger) => passenger.Survived === true
     );
     const passengerNames = passengers?.map(
-      (passenger) => passenger.Name + " (" + passenger.Age + ")"
+      (passenger) => passenger.Name + " [" + Math.ceil(passenger.Age) + "]"
     );
     setSelectedPassengers(passengerNames);
+    setPassengerListTitle("qui ont survécu");
   }, [results]);
 
   const chartDoughnutData = {
@@ -243,7 +247,7 @@ export default function Search() {
               (passenger) =>
                 passenger.Survived === true &&
                 passenger.Age > age &&
-                passenger.Age < ages[index + 1]
+                passenger.Age <= ages[index + 1]
             ).length
         ),
         backgroundColor: ["rgba(255, 99, 132, 1)"],
@@ -258,7 +262,7 @@ export default function Search() {
               (passenger) =>
                 passenger.Survived === false &&
                 passenger.Age > age &&
-                passenger.Age < ages[index + 1]
+                passenger.Age <= ages[index + 1]
             ).length
         ),
         backgroundColor: ["rgba(54, 162, 235, 1)"],
@@ -347,7 +351,6 @@ export default function Search() {
             <figure className={styles.figure}>
               <Doughnut
                 data={chartDoughnutData}
-                // options={chartOptions}
                 ref={chartRef as any}
                 onClick={doughnutClick}
               />
@@ -356,9 +359,17 @@ export default function Search() {
               </figcaption>
             </figure>
           </>
+          <>
+            <figure className={styles.figure}>
+              <Line data={chartLineData} />
+              <figcaption className={styles.figcaption}>
+                {prettifyChartsTitle("line")}
+              </figcaption>
+            </figure>
+          </>
           {selectedPassengers && (
             <div className={styles.filterList_container}>
-              <h2>Liste des passagers</h2>
+              <h2>Liste des passagers {passengerListTitle}</h2>
               <table className={styles.filterList}>
                 <thead>
                   <tr>
@@ -369,22 +380,14 @@ export default function Search() {
                 <tbody>
                   {selectedPassengers.map((passenger, index) => (
                     <tr key={index}>
-                      <td>{passenger.split("(")[0]}</td>
-                      <td>{passenger.split("(")[1].split(")")[0]}</td>
+                      <td>{passenger.split("[")[0]}</td>
+                      <td>{passenger.split("[")[1].split("]")[0]}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-          <>
-            <figure className={styles.figure}>
-              <Line data={chartLineData} />
-              <figcaption className={styles.figcaption}>
-                {prettifyChartsTitle("line")}
-              </figcaption>
-            </figure>
-          </>
         </div>
       )}
     </main>

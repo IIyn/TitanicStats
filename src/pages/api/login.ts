@@ -24,14 +24,10 @@ export default async function handler(request: any, response: any) {
         .json({ message: "Mot de passe ou email invalide" });
     }
 
-    try {
-      const token = jwt.sign({ name: user.name }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "1h",
-      });
-      response.status(200).json({ token });
-    } catch (err) {
-      response.status(401).json({ message: "Invalid token signing" });
-    }
+    const token = jwt.sign({ name: user.name }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1h",
+    });
+    response.status(200).json({ token });
   } catch (err) {
     console.error("Une erreur s'est produite :", err);
     response.status(500).json({ message: "Une erreur s'est produite" });
