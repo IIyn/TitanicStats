@@ -44,6 +44,12 @@
   width: 100%;
 }
 
+.charts h2 {
+  color: #ff5200;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
 .chart-title {
   font-size: 1.5rem;
   color: #fff;
@@ -87,14 +93,19 @@
 }
 
 .figcaption {
-  color: #ff5200;
+  color: #000000;
   display: flex;
   justify-content: center;
   text-align: center;
 }
 
 .figure {
+  margin-bottom: 4rem;
+}
+
+.figure canvas {
   margin: 0 0 2rem 0;
+  cursor: pointer;
 }
 
 .filterList_container {
@@ -118,6 +129,16 @@
 .filterList td,
 .filterList th {
   border: rgba(0, 0, 0, 0.3) 1px solid;
+  padding: 0.5rem;
+}
+
+.filterList th {
+  background-color: #ff5200;
+  color: #fff;
+}
+
+.filterList td {
+  background-color: #f8f8f8;
 }
 
 @media screen and (min-width: 768px) {

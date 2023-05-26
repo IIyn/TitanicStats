@@ -54,6 +54,8 @@ export default function Search() {
     ChartJSOrUndefined<"doughnut", (number | undefined)[], unknown> | undefined
   >();
 
+  const listRef = useRef<HTMLTableElement | null>(null);
+
   /**
    *
    * @param event the event that triggered the function
@@ -70,12 +72,14 @@ export default function Search() {
       const passengers = results?.filter(
         (passenger) => passenger.Survived === (label === "Survécu")
       );
-
       const passengerNames = passengers?.map(
         (passenger) => passenger.Name + " [" + Math.ceil(passenger.Age) + "]"
       );
       setSelectedPassengers(passengerNames);
       setPassengerListTitle(label === "Survécu" ? "qui ont survécu" : "morts");
+    }
+    if (listRef.current) {
+      listRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -144,7 +148,7 @@ export default function Search() {
         );
       case "line":
         return (
-          "Répartition de l'âge en fonction des effectifs " +
+          "Répartition des effectifs en fonctions de l'âge " +
           prettifyFilter("sex") +
           " en " +
           prettifyFilter("pclass") +
@@ -348,6 +352,7 @@ export default function Search() {
       {results && (
         <div className={styles.charts}>
           <>
+            <h2>(Cliquez sur ce graphique pour voir les détails)</h2>
             <figure className={styles.figure}>
               <Doughnut
                 data={chartDoughnutData}
@@ -360,7 +365,7 @@ export default function Search() {
             </figure>
           </>
           <>
-            <figure className={styles.figure}>
+            <figure className={styles.figure} ref={listRef}>
               <Line data={chartLineData} />
               <figcaption className={styles.figcaption}>
                 {prettifyChartsTitle("line")}
@@ -374,7 +379,7 @@ export default function Search() {
                 <thead>
                   <tr>
                     <th>Nom</th>
-                    <th>Âge</th>
+                    <th>Âge (années)</th>
                   </tr>
                 </thead>
                 <tbody>
